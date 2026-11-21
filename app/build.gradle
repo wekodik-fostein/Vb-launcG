@@ -26,6 +26,12 @@ android {
         checkReleaseBuilds false
     }
 
+    packagingOptions {
+        // Build-only fix. Prebuilt libs in src/main/jniLibs are also copied by CMake as IMPORTED targets
+        // (midihandler/CMakeLists.txt), which gives identical duplicates for AGP 7.2.2 mergeDebugNativeLibs.
+        pickFirst 'lib/arm64-v8a/*.so'
+    }
+
     ndkVersion '24.0.8215888'
 
     externalNativeBuild {
