@@ -31,6 +31,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.winlator.xclipse.ExternalLaunchActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <activity android:name="com.winlator.XServerDisplayActivity"
             android:exported="false"
             android:theme="@style/AppThemeFullscreenDark"
