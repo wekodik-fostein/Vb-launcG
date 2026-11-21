@@ -1,6 +1,7 @@
 package com.vb.launcher
 
 import android.content.Intent
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -144,17 +145,36 @@ fun HomeScreen(settings: SettingsState, device: DeviceSnapshot, onPlay: (String)
 
         Section("Запуск") {
             Text(
-                "Движок (Wine/Box64/DXVK) пока не подключён. Сейчас запуск открывает превью: " +
-                    "полный экран, выбранное разрешение, FPS-лимит, HUD и твоё тач-управление.",
+                "Если выбран .exe и установлен форк Winlator (VB) — игра запускается напрямую, без рабочего стола Wine. " +
+                    "Иначе открывается превью: полный экран, разрешение, FPS-лимит, HUD и тач-управление.",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { onPlay("GTA IV") }, enabled = settings.gta4Uri != null) { Text("▶ GTA IV") }
-                Button(onClick = { onPlay("GTA V") }, enabled = settings.gta5Uri != null) { Text("▶ GTA V") }
+            var forkMsg by remember { mutableStateOf<String?>(null) }
+            val forkResult = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+                if (r.resultCode != android.app.Activity.RESULT_OK) {
+                    forkMsg = r.data?.getStringExtra("error") ?: "Запуск через форк Winlator не удался"
+                }
             }
-            if (settings.gta4Uri == null && settings.gta5Uri == null) {
-                Text("Сначала укажи папку игры во вкладке «Игры».", fontSize = 12.sp)
+            fun play(title: String, exe: String?, folder: String?) {
+                if (exe != null && ForkBridge.isInstalled(ctx)) {
+                    forkMsg = null
+                    runCatching { forkResult.launch(ForkBridge.launchIntent(exe)) }
+                        .onFailure { forkMsg = "Не удалось открыть форк Winlator: ${it.message}" }
+                } else if (exe != null) {
+                    forkMsg = "Форк Winlator (VB) не установлен — открываю превью."
+                    onPlay(title)
+                } else if (folder != null) onPlay(title)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { play("GTA IV", settings.gta4Exe, settings.gta4Uri) },
+                    enabled = settings.gta4Exe != null || settings.gta4Uri != null) { Text("▶ GTA IV") }
+                Button(onClick = { play("GTA V", settings.gta5Exe, settings.gta5Uri) },
+                    enabled = settings.gta5Exe != null || settings.gta5Uri != null) { Text("▶ GTA V") }
+            }
+            forkMsg?.let { Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.error) }
+            if (settings.gta4Uri == null && settings.gta5Uri == null && settings.gta4Exe == null && settings.gta5Exe == null) {
+                Text("Сначала укажи .exe игры во вкладке «Игры».", fontSize = 12.sp)
             }
         }
     }
@@ -178,6 +198,15 @@ private fun persistTree(ctx: android.content.Context, uri: Uri) {
     }
 }
 
+private fun pickExe(ctx: Context, uri: Uri): String? {
+    val path = ForkBridge.uriToPath(uri)
+    if (path == null || !path.endsWith(".exe", ignoreCase = true)) {
+        Toast.makeText(ctx, "Нужен .exe из памяти телефона/SD (не из «Загрузок» через облако)", Toast.LENGTH_LONG).show()
+        return null
+    }
+    return path
+}
+
 @Composable
 fun GamesScreen(settings: SettingsState, onOpenDownloads: () -> Unit) {
     val ctx = LocalContext.current
@@ -188,6 +217,13 @@ fun GamesScreen(settings: SettingsState, onOpenDownloads: () -> Unit) {
         if (uri != null) { persistTree(ctx, uri); settings.gta5Uri = uri.toString() }
     }
 
+    val exe4 = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) pickExe(ctx, uri)?.let { settings.gta4Exe = it }
+    }
+    val exe5 = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) pickExe(ctx, uri)?.let { settings.gta5Exe = it }
+    }
+
     Page {
         Text("Игры", style = MaterialTheme.typography.headlineMedium)
         Text(
@@ -195,11 +231,11 @@ fun GamesScreen(settings: SettingsState, onOpenDownloads: () -> Unit) {
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
-        GameCard("GTA IV", settings.gta4Uri, "https://store.steampowered.com/app/12210/", { pick4.launch(null) }, onOpenDownloads) {
-            settings.gta4Uri = null
+        GameCard("GTA IV", settings.gta4Uri, "https://store.steampowered.com/app/12210/", { pick4.launch(null) }, onOpenDownloads, settings.gta4Exe, { exe4.launch(arrayOf("*/*")) }) {
+            settings.gta4Uri = null; settings.gta4Exe = null
         }
-        GameCard("GTA V", settings.gta5Uri, "https://store.steampowered.com/app/271590/", { pick5.launch(null) }, onOpenDownloads) {
-            settings.gta5Uri = null
+        GameCard("GTA V", settings.gta5Uri, "https://store.steampowered.com/app/271590/", { pick5.launch(null) }, onOpenDownloads, settings.gta5Exe, { exe5.launch(arrayOf("*/*")) }) {
+            settings.gta5Uri = null; settings.gta5Exe = null
         }
     }
 }
@@ -211,6 +247,8 @@ private fun GameCard(
     storeUrl: String,
     onPick: () -> Unit,
     onOpenDownloads: () -> Unit,
+    exePath: String?,
+    onPickExe: () -> Unit,
     onClear: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -222,9 +260,15 @@ private fun GameCard(
             fontSize = 13.sp,
             fontFamily = FontFamily.Monospace
         )
+        Text(
+            exePath ?: ".exe не выбран (нужен для прямого запуска через Winlator)",
+            fontSize = 12.sp,
+            fontFamily = FontFamily.Monospace
+        )
+        OutlinedButton(onClick = onPickExe) { Text(if (exePath == null) "Выбрать .exe" else "Сменить .exe") }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = onPick) { Text(if (uri == null) "Выбрать папку" else "Сменить") }
-            if (uri != null) TextButton(onClick = onClear) { Text("Убрать") }
+            if (uri != null || exePath != null) TextButton(onClick = onClear) { Text("Убрать") }
             else TextButton(onClick = { help = true }) { Text("Нет игры/файла?") }
         }
     }

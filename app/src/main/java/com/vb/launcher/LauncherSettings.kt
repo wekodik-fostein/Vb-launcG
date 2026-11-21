@@ -54,6 +54,8 @@ class SettingsState(ctx: Context) {
     var showHud by mutableStateOf(true)
     var gta4Uri by mutableStateOf<String?>(null)
     var gta5Uri by mutableStateOf<String?>(null)
+    var gta4Exe by mutableStateOf<String?>(null)
+    var gta5Exe by mutableStateOf<String?>(null)
     var themeMode by mutableStateOf(ThemeMode.DARK)
 
     init {
@@ -71,6 +73,8 @@ class SettingsState(ctx: Context) {
         showHud = prefs.getBoolean("hud", true)
         gta4Uri = prefs.getString("gta4", null)
         gta5Uri = prefs.getString("gta5", null)
+        gta4Exe = prefs.getString("gta4exe", null)
+        gta5Exe = prefs.getString("gta5exe", null)
         themeMode = runCatching { ThemeMode.valueOf(prefs.getString("theme", "DARK")!!) }
             .getOrDefault(ThemeMode.DARK)
     }
@@ -95,6 +99,8 @@ class SettingsState(ctx: Context) {
             .putBoolean("hud", showHud)
             .putString("gta4", gta4Uri)
             .putString("gta5", gta5Uri)
+            .putString("gta4exe", gta4Exe)
+            .putString("gta5exe", gta5Exe)
             .putString("theme", themeMode.name)
             .apply()
     }
