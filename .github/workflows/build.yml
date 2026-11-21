@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - ci-logs
+    paths-ignore:
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:
