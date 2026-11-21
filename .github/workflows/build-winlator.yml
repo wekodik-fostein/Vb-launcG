@@ -1,0 +1,76 @@
+name: Build Winlator fork
+
+on:
+  push:
+    branches-ignore:
+      - ci-logs-winlator
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install NDK 24.0.8215888 and CMake 3.22.1
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "ndk;24.0.8215888" "cmake;3.22.1" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Build debug APK
+        id: build
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Upload APK artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Winlator-xclipse-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Publish APK to a pre-release
+        if: steps.build.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk Winlator-xclipse-beta.apk
+          gh release delete winlator-xclipse-latest --cleanup-tag --yes || true
+          gh release create winlator-xclipse-latest Winlator-xclipse-beta.apk --prerelease --target "$GITHUB_SHA" --title "Winlator fork (Xclipse layer) build" --notes "Build from commit ${GITHUB_SHA::7}, branch $GITHUB_REF_NAME"
+
+      - name: Publish build log to ci-logs-winlator branch
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          {
+            echo "outcome: ${{ steps.build.outcome }}"
+            echo "commit: $GITHUB_SHA"
+            echo "ref: $GITHUB_REF_NAME"
+            echo
+            echo "=== errors ==="
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not |warning: unsupported|Unsupported " -A4 "$RUNNER_TEMP/build.log" | head -n 400 || true
+            echo
+            echo "=== tail ==="
+            tail -n 120 "$RUNNER_TEMP/build.log" || true
+          } > "$RUNNER_TEMP/out/build-status.txt"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout --orphan ci-logs-tmp
+          git rm -rf . > /dev/null 2>&1 || true
+          cp "$RUNNER_TEMP/out/build-status.txt" build-status.txt
+          git add build-status.txt
+          git commit -m "build log for ${GITHUB_SHA::7}"
+          git push --force origin HEAD:refs/heads/ci-logs-winlator
