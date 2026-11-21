@@ -1,0 +1,52 @@
+outcome: success
+tests: success
+<testsuite name="com.winlator.xclipse.GpuDetectorTest" tests="9" skipped="0" failures="0" errors="0" 
+<testsuite name="com.winlator.xclipse.VulkanInfoTest" tests="3" skipped="0" failures="0" errors="0" 
+commit: c980dbdd701e25710c83ab76f9c308d20ed7b416
+ref: winlator-xclipse
+
+=== errors ===
+
+=== test failures ===
+
+=== tail ===
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:18986:58: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46066:52: warning: passing 'const VkSubmitInfo2 *' (aka 'const struct VkSubmitInfo2 *') to parameter of type 'VkSubmitInfo2 *' (aka 'struct VkSubmitInfo2 *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:18986:58: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46069:40: warning: passing 'const VkSubmitInfo2 *' (aka 'const struct VkSubmitInfo2 *') to parameter of type 'VkSubmitInfo2 *' (aka 'struct VkSubmitInfo2 *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:19020:62: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46102:24: warning: initializing 'VkSubmitInfo2 *' (aka 'struct VkSubmitInfo2 *') with an expression of type 'const VkSubmitInfo2 *' (aka 'const struct VkSubmitInfo2 *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46185:62: warning: passing 'const VkRenderingInfo *' (aka 'const struct VkRenderingInfo *') to parameter of type 'VkRenderingInfo *' (aka 'struct VkRenderingInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:12540:62: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46200:50: warning: passing 'const VkRenderingInfo *' (aka 'const struct VkRenderingInfo *') to parameter of type 'VkRenderingInfo *' (aka 'struct VkRenderingInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:12540:62: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46203:38: warning: passing 'const VkRenderingInfo *' (aka 'const struct VkRenderingInfo *') to parameter of type 'VkRenderingInfo *' (aka 'struct VkRenderingInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:12586:66: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46226:60: warning: passing 'const VkRenderingInfo *' (aka 'const struct VkRenderingInfo *') to parameter of type 'VkRenderingInfo *' (aka 'struct VkRenderingInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:12675:68: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46336:68: warning: passing 'const VkShaderModuleCreateInfo *' (aka 'const struct VkShaderModuleCreateInfo *') to parameter of type 'VkShaderModuleCreateInfo *' (aka 'struct VkShaderModuleCreateInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:1853:80: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46353:59: warning: passing 'const VkShaderModuleCreateInfo *' (aka 'const struct VkShaderModuleCreateInfo *') to parameter of type 'VkShaderModuleCreateInfo *' (aka 'struct VkShaderModuleCreateInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:1853:80: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46356:47: warning: passing 'const VkShaderModuleCreateInfo *' (aka 'const struct VkShaderModuleCreateInfo *') to parameter of type 'VkShaderModuleCreateInfo *' (aka 'struct VkShaderModuleCreateInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:1863:84: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:46391:66: warning: passing 'const VkShaderModuleCreateInfo *' (aka 'const struct VkShaderModuleCreateInfo *') to parameter of type 'VkShaderModuleCreateInfo *' (aka 'struct VkShaderModuleCreateInfo *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/include/vortek_serializer.h:1877:86: note: passing argument to parameter 'val' here
+C/C++: /home/runner/work/Vb-launcG/Vb-launcG/app/src/main/cpp/vortekrenderer/src/request_handler.c:2001:23: warning: initializing 'VkPresentModeKHR *' (aka 'enum VkPresentModeKHR *') with an expression of type 'const VkPresentModeKHR *' (aka 'const enum VkPresentModeKHR *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+
+> Task :app:externalNativeBuildDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+> Task :app:validateSigningDebug
+> Task :app:stripDebugDebugSymbols
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+
+> Task :app:packageDebug
+PackagingOptions.jniLibs.useLegacyPackaging should be set to true because android:extractNativeLibs is set to "true" in AndroidManifest.xml.
+
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 1m 4s
+32 actionable tasks: 32 executed
