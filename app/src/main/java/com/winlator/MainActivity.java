@@ -30,6 +30,7 @@ import com.winlator.core.AppUtils;
 import com.winlator.core.Callback;
 import com.winlator.core.LocaleHelper;
 import com.winlator.core.PreloaderDialog;
+import com.winlator.xclipse.XclipseReportDialog;
 import com.winlator.xenvironment.RootFSInstaller;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -202,6 +203,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_item_about:
                 (new AboutDialog(this)).show();
+                break;
+            case R.id.menu_item_xclipse_report:
+                (new XclipseReportDialog(this)).show();
                 break;
         }
         return true;

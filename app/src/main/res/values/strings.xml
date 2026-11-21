@@ -348,4 +348,7 @@
     <string name="ddraw_wrapper" translatable="false">DDraw Wrapper</string>
     <string name="renderer">Renderer</string>
     <string name="default_no_override">Default (No override)</string>
+    <string name="xclipse_report_title">Xclipse diagnostics</string>
+    <string name="xclipse_report_collecting">Collecting data…</string>
+    <string name="xclipse_report_share">Share report</string>
 </resources>

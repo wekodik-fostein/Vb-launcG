@@ -34,6 +34,13 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
 
+      - name: Unit tests (com.winlator.xclipse)
+        id: tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --stacktrace --no-daemon 2>&1 | tee "$RUNNER_TEMP/tests.log"
+
       - name: Upload APK artifact
         if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
@@ -57,14 +64,21 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out"
           {
             echo "outcome: ${{ steps.build.outcome }}"
+            echo "tests: ${{ steps.tests.outcome }}"
+            for f in app/build/test-results/testDebugUnitTest/*.xml; do
+              [ -f "$f" ] && grep -o '<testsuite [^>]*' "$f" | head -1 | sed 's/timestamp=.*//'
+            done
             echo "commit: $GITHUB_SHA"
             echo "ref: $GITHUB_REF_NAME"
             echo
             echo "=== errors ==="
             grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Could not |warning: unsupported|Unsupported " -A4 "$RUNNER_TEMP/build.log" | head -n 400 || true
             echo
+            echo "=== test failures ==="
+            grep -E "FAILED|AssertionError|expected:" -A3 "$RUNNER_TEMP/tests.log" 2>/dev/null | head -n 60 || true
+            echo
             echo "=== tail ==="
-            tail -n 120 "$RUNNER_TEMP/build.log" || true
+            tail -n 40 "$RUNNER_TEMP/build.log" || true
           } > "$RUNNER_TEMP/out/build-status.txt"
           git config user.name "github-actions"
           git config user.email "actions@github.com"
