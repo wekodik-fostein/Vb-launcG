@@ -12,8 +12,17 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
@@ -92,12 +101,12 @@ fun VbTheme(mode: ThemeMode, content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = if (dark) DarkGray else White, content = content)
 }
 
-private enum class Tab(val label: String, val icon: String) {
-    HOME("Главная", "🏠"),
-    GAMES("Игры", "🎮"),
-    DOWNLOADS("Загрузки", "⬇️"),
-    SETTINGS("Настройки", "⚙️"),
-    CONTROLS("Управление", "👆")
+private enum class Tab(val label: String, @DrawableRes val iconRes: Int) {
+    HOME("Главная", R.drawable.ic_nav_home),
+    GAMES("Игры", R.drawable.ic_nav_games),
+    DOWNLOADS("Загрузки", R.drawable.ic_nav_downloads),
+    SETTINGS("Настройки", R.drawable.ic_nav_settings),
+    CONTROLS("Управление", R.drawable.ic_nav_controls)
 }
 
 @Composable
@@ -112,13 +121,38 @@ fun App(settings: SettingsState, controls: ControlsState, device: DeviceSnapshot
         editing -> ControlsEditorScreen(controls) { editing = false }
         else -> Scaffold(
             bottomBar = {
+                val darkUi = MaterialTheme.colorScheme.background.luminance() < 0.5f
+                val navActive = if (darkUi) Color(0xFFF1E9FF) else Color(0xFF4A2F8F)
+                val navMuted = if (darkUi) Color(0xFFA8A4B8) else Color(0xFF7A7688)
+                val navPill = if (darkUi) Color(0xFF5B4A7E) else Color(0xFFE4D9FA)
                 NavigationBar {
                     Tab.values().forEach { t ->
                         NavigationBarItem(
                             selected = tab == t.name,
                             onClick = { tab = t.name },
-                            icon = { Text(t.icon) },
-                            label = { Text(t.label) }
+                            icon = {
+                                Icon(
+                                    painter = painterResource(t.iconRes),
+                                    contentDescription = t.label,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    t.label,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Clip,
+                                    fontSize = 11.sp
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = navActive,
+                                selectedTextColor = navActive,
+                                indicatorColor = navPill,
+                                unselectedIconColor = navMuted,
+                                unselectedTextColor = navMuted
+                            )
                         )
                     }
                 }

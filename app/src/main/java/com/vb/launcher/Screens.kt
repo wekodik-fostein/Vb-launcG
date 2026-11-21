@@ -162,6 +162,14 @@ fun HomeScreen(settings: SettingsState, device: DeviceSnapshot, onPlay: (String)
 
 // ───────── Игры (выбор файлов) ─────────
 
+internal const val TG_URL = "https://t.me/vblauncher"
+
+internal fun openUrl(ctx: android.content.Context, url: String) {
+    runCatching {
+        ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+}
+
 private fun persistTree(ctx: android.content.Context, uri: Uri) {
     runCatching {
         ctx.contentResolver.takePersistableUriPermission(
@@ -226,11 +234,15 @@ private fun GameCard(
             onDismissRequest = { help = false },
             title = { Text("Нет $title?") },
             text = {
-                Text(
-                    "Лаунчер игры не раздаёт и не содержит. Купи свою копию (например, в Steam) " +
-                        "и укажи её папку. Если у тебя есть прямая ссылка на твои собственные файлы, " +
-                        "их можно скачать во вкладке «Загрузки» — с прогрессом, скоростью и в фоне."
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Лаунчер игры не раздаёт и не содержит. Купи свою копию (например, в Steam) " +
+                            "и укажи её папку. Если у тебя есть прямая ссылка на твои собственные файлы, " +
+                            "их можно скачать во вкладке «Загрузки» — с прогрессом, скоростью и в фоне."
+                    )
+                    Text("Телеграм-канал: здесь можно найти нужное.")
+                    TextButton(onClick = { openUrl(ctx, TG_URL) }) { Text("Открыть канал t.me/vblauncher") }
+                }
             },
             confirmButton = {
                 TextButton(onClick = {

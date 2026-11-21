@@ -92,6 +92,11 @@ fun DownloadsScreen() {
             )
         }
 
+        Section("Помощь") {
+            Text("Не получается скачать или запустить? Загляни в наш Телеграм-канал.", fontSize = 13.sp)
+            OutlinedButton(onClick = { openUrl(ctx, TG_URL) }) { Text("Телеграм-канал помощи") }
+        }
+
         Downloads.tasks.toList().forEach { DownloadCard(it) }
     }
 }
