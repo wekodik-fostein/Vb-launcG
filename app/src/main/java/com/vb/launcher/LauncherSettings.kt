@@ -12,6 +12,12 @@ enum class CpuPreset(val label: String, val hint: String) {
     FAST("Быстро", "Быстрее, возможны глюки")
 }
 
+enum class ThemeMode(val label: String) {
+    DARK("Тёмно-серая"),
+    LIGHT("Белая"),
+    SYSTEM("Как в системе")
+}
+
 data class ResPreset(val label: String, val w: Int, val h: Int)
 
 val RES_PRESETS = listOf(
@@ -29,7 +35,7 @@ data class SettingsSnapshot(
     val resIndex: Int, val useCustom: Boolean, val customW: Int, val customH: Int,
     val fps: Int, val fsr: Boolean, val fsrScale: Int, val fsrSharp: Int,
     val cpu: CpuPreset, val dxvkAsync: Boolean, val hud: Boolean,
-    val gta4: String?, val gta5: String?
+    val gta4: String?, val gta5: String?, val theme: ThemeMode
 )
 
 class SettingsState(ctx: Context) {
@@ -48,6 +54,7 @@ class SettingsState(ctx: Context) {
     var showHud by mutableStateOf(true)
     var gta4Uri by mutableStateOf<String?>(null)
     var gta5Uri by mutableStateOf<String?>(null)
+    var themeMode by mutableStateOf(ThemeMode.DARK)
 
     init {
         resIndex = prefs.getInt("resIndex", 2).coerceIn(0, RES_PRESETS.lastIndex)
@@ -64,11 +71,13 @@ class SettingsState(ctx: Context) {
         showHud = prefs.getBoolean("hud", true)
         gta4Uri = prefs.getString("gta4", null)
         gta5Uri = prefs.getString("gta5", null)
+        themeMode = runCatching { ThemeMode.valueOf(prefs.getString("theme", "DARK")!!) }
+            .getOrDefault(ThemeMode.DARK)
     }
 
     fun snapshot() = SettingsSnapshot(
         resIndex, useCustom, customW, customH, fpsLimit, fsrEnabled, fsrScale,
-        fsrSharpness, cpuPreset, dxvkAsync, showHud, gta4Uri, gta5Uri
+        fsrSharpness, cpuPreset, dxvkAsync, showHud, gta4Uri, gta5Uri, themeMode
     )
 
     fun save() {
@@ -86,6 +95,7 @@ class SettingsState(ctx: Context) {
             .putBoolean("hud", showHud)
             .putString("gta4", gta4Uri)
             .putString("gta5", gta5Uri)
+            .putString("theme", themeMode.name)
             .apply()
     }
 

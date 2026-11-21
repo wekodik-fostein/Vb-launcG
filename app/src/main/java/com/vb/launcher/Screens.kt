@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -49,7 +50,7 @@ import kotlinx.coroutines.delay
 // ───────── общие кусочки ─────────
 
 @Composable
-private fun Page(content: @Composable () -> Unit) {
+internal fun Page(content: @Composable () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -60,7 +61,7 @@ private fun Page(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
+internal fun Section(title: String, content: @Composable () -> Unit) {
     Card(
         Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -170,7 +171,7 @@ private fun persistTree(ctx: android.content.Context, uri: Uri) {
 }
 
 @Composable
-fun GamesScreen(settings: SettingsState) {
+fun GamesScreen(settings: SettingsState, onOpenDownloads: () -> Unit) {
     val ctx = LocalContext.current
     val pick4 = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) { persistTree(ctx, uri); settings.gta4Uri = uri.toString() }
@@ -186,23 +187,65 @@ fun GamesScreen(settings: SettingsState) {
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
-        GameCard("GTA IV", settings.gta4Uri, { pick4.launch(null) }) { settings.gta4Uri = null }
-        GameCard("GTA V", settings.gta5Uri, { pick5.launch(null) }) { settings.gta5Uri = null }
+        GameCard("GTA IV", settings.gta4Uri, "https://store.steampowered.com/app/12210/", { pick4.launch(null) }, onOpenDownloads) {
+            settings.gta4Uri = null
+        }
+        GameCard("GTA V", settings.gta5Uri, "https://store.steampowered.com/app/271590/", { pick5.launch(null) }, onOpenDownloads) {
+            settings.gta5Uri = null
+        }
     }
 }
 
 @Composable
-private fun GameCard(title: String, uri: String?, onPick: () -> Unit, onClear: () -> Unit) {
+private fun GameCard(
+    title: String,
+    uri: String?,
+    storeUrl: String,
+    onPick: () -> Unit,
+    onOpenDownloads: () -> Unit,
+    onClear: () -> Unit
+) {
+    val ctx = LocalContext.current
+    var help by remember { mutableStateOf(false) }
+
     Section(title) {
         Text(
             uri?.let { Uri.parse(it).lastPathSegment ?: it } ?: "Папка не выбрана",
             fontSize = 13.sp,
             fontFamily = FontFamily.Monospace
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = onPick) { Text(if (uri == null) "Выбрать папку" else "Сменить") }
             if (uri != null) TextButton(onClick = onClear) { Text("Убрать") }
+            else TextButton(onClick = { help = true }) { Text("Нет игры/файла?") }
         }
+    }
+
+    if (help) {
+        AlertDialog(
+            onDismissRequest = { help = false },
+            title = { Text("Нет $title?") },
+            text = {
+                Text(
+                    "Лаунчер игры не раздаёт и не содержит. Купи свою копию (например, в Steam) " +
+                        "и укажи её папку. Если у тебя есть прямая ссылка на твои собственные файлы, " +
+                        "их можно скачать во вкладке «Загрузки» — с прогрессом, скоростью и в фоне."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    help = false
+                    runCatching {
+                        ctx.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(storeUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                }) { Text("Открыть магазин") }
+            },
+            dismissButton = {
+                TextButton(onClick = { help = false; onOpenDownloads() }) { Text("Загрузки") }
+            }
+        )
     }
 }
 
@@ -319,6 +362,18 @@ fun SettingsScreen(settings: SettingsState, device: DeviceSnapshot) {
                 "Меньше подлагов при компиляции шейдеров.",
                 settings.dxvkAsync
             ) { settings.dxvkAsync = it }
+        }
+
+        Section("Тема приложения") {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ThemeMode.values().forEach { m ->
+                    FilterChip(
+                        selected = settings.themeMode == m,
+                        onClick = { settings.themeMode = m },
+                        label = { Text(m.label) }
+                    )
+                }
+            }
         }
 
         Section("Интерфейс") {
